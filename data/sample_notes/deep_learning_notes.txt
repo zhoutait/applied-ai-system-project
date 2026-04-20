@@ -1,0 +1,95 @@
+# Deep Learning Notes
+
+## What is Deep Learning?
+Deep learning is a subfield of machine learning that uses artificial neural networks with multiple layers (hence "deep") to learn representations of data with multiple levels of abstraction. Deep learning has achieved remarkable results in computer vision, natural language processing, speech recognition, and many other domains.
+
+## Neural Network Fundamentals
+
+### Perceptron
+The perceptron is the simplest neural network unit. It takes multiple inputs, applies weights, sums them up, adds a bias, and passes the result through an activation function to produce an output.
+
+Mathematical representation: output = activation(Σ(weight_i × input_i) + bias)
+
+### Activation Functions
+Activation functions introduce non-linearity into neural networks, enabling them to learn complex patterns.
+
+Common activation functions:
+- Sigmoid: σ(x) = 1/(1+e^(-x)), outputs between 0 and 1. Used in binary classification output layers.
+- Tanh: Outputs between -1 and 1. Zero-centered, often better than sigmoid for hidden layers.
+- ReLU (Rectified Linear Unit): f(x) = max(0, x). Most popular for hidden layers; fast and effective.
+- Leaky ReLU: f(x) = max(0.01x, x). Fixes the "dying ReLU" problem.
+- Softmax: Converts logits to probabilities for multi-class classification.
+
+### Backpropagation
+Backpropagation is the algorithm used to train neural networks. It computes the gradient of the loss function with respect to each weight by applying the chain rule of calculus, propagating errors backward through the network.
+
+Steps:
+1. Forward pass: Compute predictions and loss.
+2. Backward pass: Compute gradients of loss with respect to all parameters.
+3. Update weights: Use gradient descent to minimize loss.
+
+### Gradient Descent Variants
+- Batch Gradient Descent: Uses all training examples to compute gradient. Slow but stable.
+- Stochastic Gradient Descent (SGD): Uses one example at a time. Fast but noisy.
+- Mini-batch Gradient Descent: Uses small batches (e.g., 32-256 examples). Best of both worlds.
+- Adam Optimizer: Adaptive learning rate optimizer combining momentum and RMSprop. Most widely used.
+
+## Convolutional Neural Networks (CNNs)
+CNNs are specialized neural networks designed for processing grid-like data such as images. They use convolutional layers that apply learnable filters to detect local patterns.
+
+Key components:
+- Convolutional Layer: Applies filters to detect features like edges, textures, and shapes.
+- Pooling Layer: Reduces spatial dimensions (max pooling, average pooling).
+- Fully Connected Layer: Combines features for final classification.
+- Batch Normalization: Normalizes layer inputs to speed up training.
+
+Famous CNN architectures:
+- LeNet-5 (1998): First successful CNN for digit recognition.
+- AlexNet (2012): Won ImageNet competition, sparked deep learning revolution.
+- VGG (2014): Very deep networks with small 3×3 filters.
+- ResNet (2015): Introduced skip connections to train very deep networks (100+ layers).
+- EfficientNet (2019): Scales network width, depth, and resolution efficiently.
+
+## Recurrent Neural Networks (RNNs)
+RNNs are designed for sequential data. They maintain a hidden state that captures information from previous time steps.
+
+Types:
+- Vanilla RNN: Basic recurrent unit; suffers from vanishing gradient problem.
+- LSTM (Long Short-Term Memory): Uses gates to control information flow; handles long-range dependencies.
+- GRU (Gated Recurrent Unit): Simplified version of LSTM with fewer parameters.
+
+## Transformers and Attention Mechanism
+The Transformer architecture, introduced in "Attention is All You Need" (2017), revolutionized NLP and beyond.
+
+Key concepts:
+- Self-Attention: Each token attends to all other tokens in the sequence.
+- Multi-Head Attention: Multiple attention heads capture different types of relationships.
+- Positional Encoding: Adds position information since Transformers have no recurrence.
+- Encoder-Decoder Architecture: Encoder processes input; decoder generates output.
+
+Famous Transformer models:
+- BERT: Bidirectional encoder for understanding tasks (classification, QA).
+- GPT series: Autoregressive decoder for text generation.
+- T5: Treats all NLP tasks as text-to-text problems.
+- Vision Transformer (ViT): Applies Transformers to image patches.
+
+## Regularization Techniques in Deep Learning
+- Dropout: Randomly sets a fraction of neurons to zero during training.
+- Weight Decay (L2 Regularization): Penalizes large weights.
+- Data Augmentation: Creates variations of training data (flips, rotations, crops).
+- Early Stopping: Stops training when validation loss stops improving.
+- Batch Normalization: Normalizes activations; acts as a regularizer.
+
+## Transfer Learning
+Transfer learning involves taking a model pre-trained on a large dataset and fine-tuning it for a specific task. This is especially powerful when labeled data is scarce.
+
+Approaches:
+- Feature Extraction: Freeze pre-trained layers; train only the final layers.
+- Fine-Tuning: Unfreeze some or all layers and train with a small learning rate.
+- Zero-shot/Few-shot Learning: Use large language models without any task-specific training.
+
+## Common Deep Learning Frameworks
+- PyTorch: Dynamic computation graphs; favored in research.
+- TensorFlow/Keras: Static and dynamic graphs; widely used in production.
+- JAX: High-performance numerical computing with automatic differentiation.
+- Hugging Face Transformers: Library for state-of-the-art NLP models.

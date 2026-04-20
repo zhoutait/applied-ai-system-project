@@ -1,0 +1,75 @@
+# AI Ethics and Responsible AI
+
+## Why AI Ethics Matters
+As AI systems become more powerful and pervasive, their decisions increasingly affect people's lives — from hiring and lending decisions to medical diagnoses and criminal justice. Ethical AI development ensures that these systems are fair, transparent, accountable, and beneficial to society.
+
+## Core Principles of Responsible AI
+
+### Fairness
+AI systems should treat all individuals and groups equitably. Algorithmic bias can arise from biased training data, flawed model design, or discriminatory use cases. Fairness can be defined in multiple ways:
+- Demographic parity: Equal outcomes across demographic groups.
+- Equal opportunity: Equal true positive rates across groups.
+- Individual fairness: Similar individuals receive similar treatment.
+
+These definitions can sometimes conflict with each other, requiring careful consideration of context and values.
+
+### Transparency and Explainability
+Transparency means being open about how AI systems work, what data they use, and what their limitations are. Explainability refers to the ability to explain AI decisions in human-understandable terms.
+
+Techniques for explainability include LIME (Local Interpretable Model-agnostic Explanations), SHAP (SHapley Additive exPlanations), and attention visualization for transformer models. The EU AI Act and similar regulations increasingly require explainability for high-stakes AI decisions.
+
+### Privacy
+AI systems often require large amounts of personal data, raising significant privacy concerns. Privacy-preserving techniques include:
+- Differential Privacy: Adds calibrated noise to protect individual data points.
+- Federated Learning: Trains models on distributed data without centralizing it.
+- Data Minimization: Collecting only the data necessary for the task.
+- Anonymization: Removing personally identifiable information from datasets.
+
+### Accountability
+Clear lines of responsibility must exist for AI system decisions. This includes human oversight mechanisms, audit trails, and the ability to contest automated decisions. The "human in the loop" principle ensures that humans remain responsible for consequential decisions.
+
+### Safety and Robustness
+AI systems must be reliable and safe, especially in high-stakes domains like healthcare, autonomous vehicles, and critical infrastructure. Adversarial robustness ensures systems are not easily fooled by malicious inputs. Testing for edge cases and failure modes is essential.
+
+## Types of AI Bias
+
+### Data Bias
+Training data may not represent the full population or may reflect historical inequalities. For example, a facial recognition system trained mostly on lighter-skinned faces will perform worse on darker-skinned faces.
+
+### Algorithmic Bias
+The model architecture or optimization objective may inadvertently encode bias. For instance, optimizing purely for accuracy on an imbalanced dataset may lead to poor performance on minority classes.
+
+### Measurement Bias
+The way outcomes are measured or labeled can introduce bias. If the "ground truth" labels themselves reflect human biases, the model will learn those biases.
+
+### Deployment Bias
+Even a well-designed model can be misused or deployed in contexts it wasn't designed for, leading to harmful outcomes.
+
+## AI Hallucination
+Hallucination refers to AI language models generating plausible-sounding but factually incorrect information. This is a significant reliability concern.
+
+Causes include: training on noisy or incorrect data, the model's tendency to generate fluent text even when uncertain, and the lack of grounding in verified facts.
+
+Mitigation strategies:
+- Retrieval-Augmented Generation (RAG): Grounds responses in retrieved facts.
+- Confidence scoring: Models express uncertainty when appropriate.
+- Human verification: Critical outputs are reviewed by humans.
+- Constitutional AI: Models are trained to follow explicit principles.
+
+## Regulatory Landscape
+
+### EU AI Act
+The EU AI Act (2024) is the world's first comprehensive AI regulation. It categorizes AI systems by risk level:
+- Unacceptable risk: Banned (e.g., social scoring, real-time biometric surveillance).
+- High risk: Strict requirements (e.g., medical devices, hiring tools, credit scoring).
+- Limited risk: Transparency obligations (e.g., chatbots must disclose they are AI).
+- Minimal risk: No specific requirements.
+
+### NIST AI Risk Management Framework
+The US National Institute of Standards and Technology (NIST) published the AI RMF to help organizations manage AI risks. It focuses on four core functions: Govern, Map, Measure, and Manage.
+
+## AI and Employment
+AI automation raises concerns about job displacement. While AI may eliminate some routine tasks, it also creates new roles and augments human capabilities. Responsible deployment includes worker retraining programs, gradual automation, and ensuring the benefits of AI are broadly shared.
+
+## Environmental Impact
+Training large AI models requires significant computational resources and energy. GPT-3 training was estimated to emit as much CO2 as five cars over their lifetimes. Researchers are developing more efficient architectures and training methods to reduce the environmental footprint of AI.

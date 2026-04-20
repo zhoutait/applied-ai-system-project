@@ -1,0 +1,88 @@
+# Natural Language Processing (NLP) Fundamentals
+
+## What is NLP?
+Natural Language Processing (NLP) is a branch of artificial intelligence that deals with the interaction between computers and humans using natural language. The goal is to enable computers to understand, interpret, and generate human language in a way that is both meaningful and useful.
+
+## Core NLP Tasks
+
+### Text Classification
+Text classification assigns predefined categories to text documents. Applications include sentiment analysis, spam detection, topic categorization, and intent recognition. Common approaches include bag-of-words models, TF-IDF with classical ML, and fine-tuned transformer models.
+
+### Named Entity Recognition (NER)
+NER identifies and classifies named entities in text into predefined categories such as person names, organizations, locations, dates, and quantities. For example: "Apple Inc. was founded by Steve Jobs in Cupertino, California."
+
+### Machine Translation
+Machine translation automatically translates text from one language to another. Modern neural machine translation (NMT) uses encoder-decoder architectures with attention mechanisms. Google Translate and DeepL are prominent examples.
+
+### Question Answering (QA)
+QA systems answer questions posed in natural language. Extractive QA finds the answer span within a provided context. Generative QA produces a free-form answer. Retrieval-Augmented Generation (RAG) combines retrieval with generation for knowledge-grounded answers.
+
+### Text Summarization
+Summarization condenses long documents into shorter versions. Extractive summarization selects important sentences from the original text. Abstractive summarization generates new sentences that capture the key ideas.
+
+## Text Preprocessing
+
+### Tokenization
+Tokenization splits text into individual tokens (words, subwords, or characters). Word tokenization splits on whitespace and punctuation. Subword tokenization (BPE, WordPiece) handles out-of-vocabulary words by splitting them into known subword units. This is used by BERT, GPT, and most modern models.
+
+### Stop Word Removal
+Stop words are common words (e.g., "the", "is", "at") that carry little semantic meaning. Removing them reduces noise in classical NLP pipelines, though modern neural models typically keep them.
+
+### Stemming and Lemmatization
+Stemming reduces words to their root form by removing suffixes (e.g., "running" → "run"). Lemmatization reduces words to their dictionary form (lemma) using vocabulary and morphological analysis (e.g., "better" → "good").
+
+### Text Normalization
+Normalization includes lowercasing, removing special characters, expanding contractions, and correcting spelling errors to create consistent text representations.
+
+## Word Representations
+
+### Bag of Words (BoW)
+BoW represents text as a vector of word counts or frequencies, ignoring grammar and word order. Simple but loses contextual information.
+
+### TF-IDF (Term Frequency-Inverse Document Frequency)
+TF-IDF weights words by how frequently they appear in a document relative to how common they are across all documents. Words that are frequent in a document but rare overall get higher scores.
+
+### Word Embeddings
+Word embeddings represent words as dense vectors in a continuous vector space, where semantically similar words are close together.
+
+Word2Vec (2013): Learns embeddings by predicting context words (Skip-gram) or the center word from context (CBOW).
+GloVe: Learns embeddings from global word co-occurrence statistics.
+FastText: Extends Word2Vec to use character n-grams, handling morphologically rich languages and out-of-vocabulary words.
+
+### Contextual Embeddings
+Unlike static embeddings, contextual embeddings change based on the surrounding context. BERT and GPT produce different embeddings for the same word in different sentences, capturing polysemy (multiple meanings).
+
+## Retrieval-Augmented Generation (RAG)
+
+### Overview
+RAG is a framework that enhances language model outputs by retrieving relevant information from an external knowledge base before generating a response. This grounds the model's answers in factual, up-to-date information.
+
+### RAG Pipeline
+1. Document Ingestion: Load and preprocess documents.
+2. Chunking: Split documents into manageable chunks (e.g., 500-1000 tokens).
+3. Embedding: Convert chunks to dense vector representations.
+4. Indexing: Store embeddings in a vector database (e.g., ChromaDB, FAISS, Pinecone).
+5. Query: Convert user query to embedding.
+6. Retrieval: Find top-k most similar chunks using cosine similarity or dot product.
+7. Augmentation: Prepend retrieved context to the prompt.
+8. Generation: LLM generates a response grounded in retrieved context.
+
+### Benefits of RAG
+- Reduces hallucination by grounding responses in retrieved facts.
+- Allows models to access up-to-date or domain-specific information.
+- More interpretable than pure parametric knowledge (can cite sources).
+- Cost-effective alternative to fine-tuning for knowledge updates.
+
+## Evaluation Metrics for NLP
+
+### BLEU Score
+BLEU (Bilingual Evaluation Understudy) measures the overlap of n-grams between generated text and reference translations. Widely used for machine translation evaluation.
+
+### ROUGE Score
+ROUGE (Recall-Oriented Understudy for Gisting Evaluation) measures overlap between generated summaries and reference summaries. ROUGE-N measures n-gram overlap; ROUGE-L measures longest common subsequence.
+
+### Perplexity
+Perplexity measures how well a language model predicts a sample. Lower perplexity indicates a better model. It is the exponential of the average negative log-likelihood per token.
+
+### BERTScore
+BERTScore computes similarity between generated and reference text using contextual BERT embeddings, capturing semantic similarity beyond surface-level overlap.

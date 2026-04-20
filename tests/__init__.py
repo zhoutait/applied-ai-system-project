@@ -1,0 +1,1 @@
+"""StudyMind AI — test suite."""

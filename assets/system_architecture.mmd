@@ -1,0 +1,60 @@
+flowchart TD
+    User(["User Input\nCLI Query"])
+
+    subgraph GL["Guardrails Layer"]
+        GV["Input Validator"]
+        GS["Input Sanitizer"]
+        GC["Confidence Checker"]
+    end
+
+    subgraph AG["StudyMind Agent - Agentic Workflow"]
+        TC["Step 1: Task Classifier\nquiz / summary / explain / qa"]
+        RET["Step 2: RAG Retriever\nsemantic search top-k=4"]
+        GEN["Step 3: Generator\nfew-shot prompted LLM"]
+        VER["Step 4: Self-Verifier\nconsistency check"]
+    end
+
+    subgraph VDB["ChromaDB Vector Store"]
+        EMB["Embedder\nall-MiniLM-L6-v2"]
+        IDX["Vector Index\ncosine similarity"]
+    end
+
+    subgraph KB["Knowledge Base"]
+        D1["ML Basics"]
+        D2["Deep Learning"]
+        D3["NLP Fundamentals"]
+        D4["AI Ethics"]
+    end
+
+    LLM["GPT-4.1-mini\nAugmented Prompt"]
+
+    subgraph OUT["Output"]
+        ANS["Final Answer"]
+        TRACE["Reasoning Trace"]
+        CONF["Confidence Score"]
+        LOG["Log File"]
+    end
+
+    subgraph TST["Evaluation and Testing"]
+        UNIT["Unit Tests\n27 tests"]
+        HARNESS["Integration Harness\n11 tests"]
+    end
+
+    User --> GV
+    GV -->|valid| GS
+    GV -->|blocked| BLOCK["Blocked with Error"]
+    GS --> TC
+    TC --> RET
+    D1 & D2 & D3 & D4 --> EMB
+    EMB --> IDX
+    RET --> IDX
+    IDX --> RET
+    RET --> GEN
+    GEN --> LLM
+    LLM --> VER
+    VER --> GC
+    GC -->|ok| ANS
+    GC -->|low confidence| WARN["Warning + Answer"]
+    ANS --> TRACE & CONF & LOG
+    UNIT -.->|tests| GV & EMB & TC
+    HARNESS -.->|end-to-end| AG

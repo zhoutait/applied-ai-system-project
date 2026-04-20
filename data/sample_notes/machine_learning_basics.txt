@@ -1,0 +1,88 @@
+# Machine Learning Basics
+
+## What is Machine Learning?
+Machine learning (ML) is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed. It focuses on developing computer programs that can access data and use it to learn for themselves.
+
+## Types of Machine Learning
+
+### Supervised Learning
+Supervised learning is the most common type of machine learning. In supervised learning, the algorithm is trained on labeled data — meaning each training example is paired with an output label. The goal is to learn a mapping from inputs to outputs.
+
+Examples of supervised learning algorithms:
+- Linear Regression: Used for predicting continuous values (e.g., house prices).
+- Logistic Regression: Used for binary classification problems.
+- Decision Trees: Tree-like models used for both classification and regression.
+- Support Vector Machines (SVM): Finds the optimal hyperplane to separate classes.
+- Neural Networks: Layers of interconnected nodes inspired by the human brain.
+
+### Unsupervised Learning
+Unsupervised learning involves training on data without labeled responses. The algorithm tries to find patterns and structure in the data on its own.
+
+Examples of unsupervised learning algorithms:
+- K-Means Clustering: Groups data points into K clusters based on similarity.
+- Principal Component Analysis (PCA): Reduces dimensionality while preserving variance.
+- Autoencoders: Neural networks that learn compressed representations of data.
+- DBSCAN: Density-based clustering that can find arbitrarily shaped clusters.
+
+### Reinforcement Learning
+Reinforcement learning (RL) is a type of machine learning where an agent learns to make decisions by interacting with an environment. The agent receives rewards or penalties based on its actions and learns to maximize cumulative reward over time.
+
+Key concepts in RL:
+- Agent: The learner or decision-maker.
+- Environment: What the agent interacts with.
+- State: The current situation of the agent.
+- Action: What the agent can do.
+- Reward: Feedback from the environment.
+- Policy: The strategy the agent uses to determine actions.
+
+## Key Concepts in Machine Learning
+
+### Overfitting and Underfitting
+Overfitting occurs when a model learns the training data too well, including noise and outliers, resulting in poor generalization to new data. Underfitting occurs when a model is too simple to capture the underlying pattern in the data.
+
+To combat overfitting:
+- Regularization (L1/L2): Adds a penalty term to the loss function.
+- Dropout: Randomly deactivates neurons during training in neural networks.
+- Cross-validation: Evaluates model performance on multiple data splits.
+- Early stopping: Halts training when validation performance stops improving.
+
+### Bias-Variance Tradeoff
+The bias-variance tradeoff is a fundamental concept in machine learning. Bias refers to the error introduced by approximating a real-world problem with a simplified model. Variance refers to the model's sensitivity to fluctuations in the training data.
+
+High bias → underfitting; High variance → overfitting. The goal is to find the sweet spot that minimizes total error.
+
+### Feature Engineering
+Feature engineering is the process of using domain knowledge to create or transform features (input variables) that make machine learning algorithms work better. Good feature engineering can dramatically improve model performance.
+
+Common techniques:
+- Normalization/Standardization: Scales features to a common range.
+- One-hot encoding: Converts categorical variables to binary vectors.
+- Feature selection: Removes irrelevant or redundant features.
+- Polynomial features: Creates interaction terms between features.
+
+## Model Evaluation Metrics
+
+### Classification Metrics
+- Accuracy: Proportion of correctly classified instances.
+- Precision: True positives / (True positives + False positives).
+- Recall (Sensitivity): True positives / (True positives + False negatives).
+- F1-Score: Harmonic mean of precision and recall.
+- ROC-AUC: Area under the Receiver Operating Characteristic curve.
+
+### Regression Metrics
+- Mean Absolute Error (MAE): Average absolute difference between predictions and actuals.
+- Mean Squared Error (MSE): Average squared difference between predictions and actuals.
+- Root Mean Squared Error (RMSE): Square root of MSE, in the same units as the target.
+- R-squared (R²): Proportion of variance in the target explained by the model.
+
+## The Machine Learning Pipeline
+1. Data Collection: Gather raw data from various sources.
+2. Data Preprocessing: Clean, transform, and prepare data for modeling.
+3. Exploratory Data Analysis (EDA): Understand data distributions and relationships.
+4. Feature Engineering: Create and select relevant features.
+5. Model Selection: Choose appropriate algorithms for the problem.
+6. Model Training: Fit the model to the training data.
+7. Model Evaluation: Assess performance on held-out test data.
+8. Hyperparameter Tuning: Optimize model parameters using techniques like grid search.
+9. Model Deployment: Integrate the model into a production system.
+10. Monitoring: Track model performance over time and retrain as needed.
