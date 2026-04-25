@@ -377,5 +377,12 @@ class StudyMindAgent:
             )
             return response.choices[0].message.content.strip()
         except Exception as exc:
-            logger.error("LLM call failed: %s", exc)
-            raise RuntimeError(f"LLM generation failed: {exc}") from exc
+            message = str(exc)
+            if "invalid_api_key" in message or "Incorrect API key" in message or "Error code: 401" in message:
+                safe_message = "OpenAI authentication failed. Check that OPENAI_API_KEY is a valid key."
+            elif "Connection error" in message:
+                safe_message = "Could not reach the OpenAI API. Check your network connection and try again."
+            else:
+                safe_message = "The language model request failed. Check logs/studymind.log for details."
+            logger.error("LLM call failed: %s", safe_message)
+            raise RuntimeError(f"LLM generation failed: {safe_message}") from exc

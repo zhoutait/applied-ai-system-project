@@ -29,14 +29,20 @@ The system is built around a multi-step agentic workflow and a local vector data
    git clone https://github.com/zhoutait/applied-ai-system-project.git
    cd applied-ai-system-project
    ```
-2. Install the required dependencies:
+2. Create and activate a virtual environment:
    ```bash
-   pip install -r requirements.txt
+   python3 -m venv .venv
+   source .venv/bin/activate
    ```
-3. Set your OpenAI API key as an environment variable:
+3. Install the required dependencies:
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
+4. Set your OpenAI API key as an environment variable:
    ```bash
    export OPENAI_API_KEY="your-api-key-here"
    ```
+   Replace `your-api-key-here` with a real OpenAI API key before running normal queries or the test harness.
 
 ### Running the Application
 To run the interactive study assistant:
@@ -95,5 +101,4 @@ The system includes both unit tests and an automated integration test harness.
 4. **Test Harness:** A comprehensive evaluation script (`tests/test_harness.py`) runs predefined inputs and outputs a structured pass/fail summary.
 
 ## Loom Video Walkthrough
-[Insert Loom Video Link Here]
-*(Note: Please record a 5-7 minute video demonstrating the system running end-to-end, showing the RAG feature, agentic trace, and guardrails in action, and paste the link here before submission).*
+https://www.loom.com/share/d24b08c8d1f448fc95192203f3230c3a

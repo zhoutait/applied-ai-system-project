@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 
 import chromadb
+import numpy as np
 from chromadb.utils import embedding_functions
 
 # ---------------------------------------------------------------------------
@@ -35,6 +36,24 @@ CHUNK_OVERLAP = 100       # Characters of overlap between consecutive chunks
 TOP_K = 4                 # Number of chunks to retrieve per query
 MIN_CONFIDENCE = 0.25     # Minimum cosine similarity to include a chunk
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"   # Lightweight, fast local model
+
+
+# ---------------------------------------------------------------------------
+# Embedding function
+# ---------------------------------------------------------------------------
+class QuietSentenceTransformerEmbeddingFunction(
+    embedding_functions.SentenceTransformerEmbeddingFunction
+):
+    """SentenceTransformer embedding function with CLI progress bars disabled."""
+
+    def __call__(self, input):  # type: ignore[override]
+        embeddings = self._model.encode(
+            list(input),
+            convert_to_numpy=True,
+            normalize_embeddings=self.normalize_embeddings,
+            show_progress_bar=False,
+        )
+        return [np.array(embedding, dtype=np.float32) for embedding in embeddings]
 
 
 # ---------------------------------------------------------------------------
@@ -61,7 +80,7 @@ class RAGEngine:
         self.chroma_client = chromadb.Client()
 
         # Use local sentence-transformers model for embeddings
-        self.embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
+        self.embedding_fn = QuietSentenceTransformerEmbeddingFunction(
             model_name=EMBEDDING_MODEL
         )
 

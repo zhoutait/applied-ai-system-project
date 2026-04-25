@@ -16,8 +16,17 @@ Usage
 import argparse
 import logging
 import os
-import sys
 from pathlib import Path
+
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+os.environ.setdefault("TQDM_DISABLE", "1")
+
+from rich import box
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+from rich.table import Table
 
 from src.logger_config import setup_logging
 from src.rag_engine import RAGEngine
@@ -27,67 +36,77 @@ from src.guardrails import Guardrails
 # ---------------------------------------------------------------------------
 # Initialise logging before anything else
 # ---------------------------------------------------------------------------
-setup_logging(log_dir="logs", log_level=logging.INFO)
+setup_logging(log_dir="logs", log_level=logging.CRITICAL)
 logger = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# ANSI colour helpers (graceful fallback on non-TTY)
-# ---------------------------------------------------------------------------
-_USE_COLOR = sys.stdout.isatty()
-
-def _c(text: str, code: str) -> str:
-    return f"\033[{code}m{text}\033[0m" if _USE_COLOR else text
-
-def cyan(t):    return _c(t, "96")
-def green(t):   return _c(t, "92")
-def yellow(t):  return _c(t, "93")
-def red(t):     return _c(t, "91")
-def bold(t):    return _c(t, "1")
-def dim(t):     return _c(t, "2")
+console = Console()
 
 
 # ---------------------------------------------------------------------------
 # Pretty-print helpers
 # ---------------------------------------------------------------------------
-DIVIDER = "─" * 70
-
 def print_header():
-    print()
-    print(bold(cyan("╔══════════════════════════════════════════════════════════════════╗")))
-    print(bold(cyan("║              StudyMind AI — RAG-Powered Study Assistant          ║")))
-    print(bold(cyan("╚══════════════════════════════════════════════════════════════════╝")))
-    print()
+    """Render the app masthead."""
+    console.print()
+    console.print(Panel.fit(
+        "[bold cyan]StudyMind AI[/bold cyan]\n"
+        "[white]RAG-powered study assistant with agent trace, sources, and guardrails[/white]",
+        border_style="cyan",
+        padding=(1, 4),
+    ))
+
+
+def print_notice(title: str, message: str, style: str = "yellow") -> None:
+    """Render a short status or warning panel."""
+    console.print(Panel(message, title=title, border_style=style, padding=(1, 2)))
+
+
+def has_openai_key() -> bool:
+    """Return True when the generation API key looks configured."""
+    return os.environ.get("OPENAI_API_KEY", "").strip().startswith("sk-")
 
 def print_response(response):
     """Pretty-print an AgentResponse object."""
-    print()
-    print(DIVIDER)
-    print(bold(f"Query: {response.query}"))
-    print(DIVIDER)
+    console.print()
+    console.rule(f"[bold cyan]Query[/bold cyan] [white]{response.query}[/white]", style="cyan")
 
-    # Reasoning trace
-    print(bold(cyan("\n[Reasoning Trace]")))
+    trace = Table(
+        title="Agent Trace",
+        box=box.SIMPLE_HEAVY,
+        header_style="bold cyan",
+        show_lines=False,
+        expand=True,
+    )
+    trace.add_column("Step", justify="right", width=4)
+    trace.add_column("Action", style="bold")
+    trace.add_column("Result")
+    trace.add_column("Confidence", justify="right", width=11)
     for step in response.steps:
-        icon = "✓" if step.confidence >= 0.7 else ("⚠" if step.confidence >= 0.4 else "✗")
-        print(f"  Step {step.step_number}: {bold(step.action)}")
-        print(f"    → {step.output_summary}")
-        print(dim(f"    Confidence: {step.confidence:.0%}  {icon}"))
+        confidence_style = "green" if step.confidence >= 0.7 else ("yellow" if step.confidence >= 0.4 else "red")
+        trace.add_row(
+            str(step.step_number),
+            step.action,
+            step.output_summary,
+            f"[{confidence_style}]{step.confidence:.0%}[/{confidence_style}]",
+        )
+    console.print(trace)
 
-    # Sources
-    if response.sources_used:
-        print(bold(cyan("\n[Sources Used]")))
-        for src in response.sources_used:
-            print(f"  • {src}")
-
-    # Confidence
     conf = response.overall_confidence
-    conf_color = green if conf >= 0.7 else (yellow if conf >= 0.45 else red)
-    print(bold(cyan("\n[Overall Confidence]")), conf_color(f"{conf:.0%}"))
+    conf_style = "green" if conf >= 0.7 else ("yellow" if conf >= 0.45 else "red")
+    sources = ", ".join(response.sources_used) if response.sources_used else "No retrieved sources"
+    summary = Table.grid(expand=True)
+    summary.add_column(ratio=1)
+    summary.add_column(ratio=2)
+    summary.add_row("[bold]Task[/bold]", response.task_type)
+    summary.add_row("[bold]Overall confidence[/bold]", f"[{conf_style}]{conf:.0%}[/{conf_style}]")
+    summary.add_row("[bold]Sources[/bold]", sources)
+    console.print(Panel(summary, title="Run Summary", border_style=conf_style, padding=(1, 2)))
 
-    # Final answer
-    print(bold(cyan("\n[Answer]")))
-    print(response.final_answer)
-    print()
+    console.print(Panel(
+        Markdown(response.final_answer),
+        title="Answer",
+        border_style="cyan",
+        padding=(1, 2),
+    ))
 
 
 # ---------------------------------------------------------------------------
@@ -96,23 +115,35 @@ def print_response(response):
 
 def build_system(notes_dir: str = "data/sample_notes") -> tuple:
     """Initialise RAG engine, agent, and guardrails; ingest notes."""
-    print(bold("\nInitialising StudyMind AI..."))
+    console.print("[bold cyan]Initializing StudyMind AI...[/bold cyan]")
 
-    rag = RAGEngine()
-    agent = StudyMindAgent(rag)
-    guard = Guardrails()
+    with console.status("[cyan]Loading retriever and agent...[/cyan]", spinner="dots"):
+        rag = RAGEngine()
+        agent = StudyMindAgent(rag)
+        guard = Guardrails()
 
-    # Ingest notes
     notes_path = Path(notes_dir)
     if notes_path.is_dir():
-        print(f"Ingesting notes from: {notes_path.resolve()}")
-        results = rag.ingest_directory(str(notes_path))
+        with console.status(f"[cyan]Indexing notes from {notes_path.resolve()}...[/cyan]", spinner="dots"):
+            results = rag.ingest_directory(str(notes_path))
         total_chunks = sum(results.values())
-        print(green(f"  ✓ Ingested {len(results)} file(s) → {total_chunks} chunks loaded into knowledge base."))
+        table = Table(
+            title=f"Knowledge Base: {len(results)} file(s), {total_chunks} chunks",
+            box=box.SIMPLE,
+            header_style="bold cyan",
+            show_lines=False,
+        )
+        table.add_column("Source file")
+        table.add_column("Chunks", justify="right")
         for fname, count in results.items():
-            print(dim(f"    {fname}: {count} chunks"))
+            table.add_row(fname, str(count))
+        console.print(table)
     else:
-        print(yellow(f"  ⚠ Notes directory '{notes_dir}' not found. Running without knowledge base."))
+        print_notice(
+            "Knowledge Base",
+            f"Notes directory '{notes_dir}' was not found. Running without local study notes.",
+            style="yellow",
+        )
 
     return rag, agent, guard
 
@@ -129,23 +160,24 @@ def handle_query(query: str, agent: StudyMindAgent, guard: Guardrails) -> bool:
     # Validate
     is_valid, validation_msg = guard.validate_input(clean_query)
     if not is_valid:
-        print(red(f"\n[Guardrail] {validation_msg}"))
+        print_notice("Guardrail", validation_msg, style="red")
         return False
     if validation_msg:
-        print(yellow(f"\n[Note] {validation_msg}"))
+        print_notice("Note", validation_msg, style="yellow")
 
     # Run agent
     try:
-        response = agent.run(clean_query)
+        with console.status("[cyan]Running retrieval, generation, and verification...[/cyan]", spinner="dots"):
+            response = agent.run(clean_query)
     except RuntimeError as exc:
-        print(red(f"\n[Error] {exc}"))
+        print_notice("Error", str(exc), style="red")
         logger.error("Agent failed for query '%s': %s", clean_query[:60], exc)
         return False
 
     # Confidence check
     _, conf_warning = guard.check_output_confidence(response.overall_confidence)
     if conf_warning:
-        print(yellow(f"\n[Confidence Warning] {conf_warning}"))
+        print_notice("Confidence Warning", conf_warning, style="yellow")
 
     print_response(response)
     return True
@@ -154,19 +186,21 @@ def handle_query(query: str, agent: StudyMindAgent, guard: Guardrails) -> bool:
 def interactive_mode(agent: StudyMindAgent, guard: Guardrails):
     """Run the interactive REPL loop."""
     print_header()
-    print("Type your study question, or use one of these commands:")
-    print(dim("  /quiz <topic>    — Generate quiz questions on a topic"))
-    print(dim("  /summary <topic> — Get a concise summary of a topic"))
-    print(dim("  /explain <topic> — Get a detailed explanation"))
-    print(dim("  /help            — Show this help message"))
-    print(dim("  /quit or /exit   — Exit the application"))
-    print()
+    commands = Table(box=box.SIMPLE, show_header=False)
+    commands.add_column("Command", style="bold cyan")
+    commands.add_column("Purpose")
+    commands.add_row("/quiz <topic>", "Generate quiz questions")
+    commands.add_row("/summary <topic>", "Get a concise summary")
+    commands.add_row("/explain <topic>", "Get a detailed explanation")
+    commands.add_row("/help", "Show commands")
+    commands.add_row("/quit", "Exit")
+    console.print(Panel(commands, title="Commands", border_style="cyan", padding=(1, 2)))
 
     while True:
         try:
-            raw = input(bold(cyan("StudyMind > "))).strip()
+            raw = console.input("[bold cyan]StudyMind > [/bold cyan]").strip()
         except (EOFError, KeyboardInterrupt):
-            print(bold("\nGoodbye!"))
+            console.print("\n[bold]Goodbye![/bold]")
             break
 
         if not raw:
@@ -174,13 +208,10 @@ def interactive_mode(agent: StudyMindAgent, guard: Guardrails):
 
         cmd = raw.lower()
         if cmd in ("/quit", "/exit", "quit", "exit"):
-            print(bold("Goodbye!"))
+            console.print("[bold]Goodbye![/bold]")
             break
         elif cmd == "/help":
-            print(dim("  /quiz <topic>    — Generate quiz questions on a topic"))
-            print(dim("  /summary <topic> — Get a concise summary of a topic"))
-            print(dim("  /explain <topic> — Get a detailed explanation"))
-            print(dim("  /quit or /exit   — Exit the application"))
+            console.print(commands)
             continue
 
         # Translate shorthand commands to natural language
@@ -197,7 +228,7 @@ def interactive_mode(agent: StudyMindAgent, guard: Guardrails):
 def demo_mode(agent: StudyMindAgent, guard: Guardrails):
     """Run a set of built-in demo queries to showcase the system."""
     print_header()
-    print(bold(yellow("Running demo queries...\n")))
+    console.print(Panel("Running built-in demo queries.", border_style="yellow", padding=(1, 2)))
 
     demo_queries = [
         "What is overfitting and how can it be prevented?",
@@ -208,11 +239,9 @@ def demo_mode(agent: StudyMindAgent, guard: Guardrails):
     ]
 
     for query in demo_queries:
-        print(bold(f"\n{'='*70}"))
-        print(bold(f"Demo Query: {query}"))
-        print(bold(f"{'='*70}"))
+        console.rule(f"[bold yellow]Demo Query[/bold yellow] {query}", style="yellow")
         handle_query(query, agent, guard)
-        input(dim("  [Press Enter to continue to next demo query...]"))
+        console.input("[dim]Press Enter to continue to the next demo query...[/dim]")
 
 
 # ---------------------------------------------------------------------------
@@ -251,6 +280,25 @@ def parse_args():
 def main():
     args = parse_args()
     notes_dir = args.ingest if args.ingest else args.notes_dir
+
+    if args.query:
+        guard = Guardrails()
+        clean_query = guard.sanitize_query(args.query)
+        is_valid, validation_msg = guard.validate_input(clean_query)
+        if not is_valid:
+            print_header()
+            print_notice("Guardrail", validation_msg, style="red")
+            return
+
+    if not has_openai_key():
+        print_header()
+        print_notice(
+            "OpenAI API Key",
+            "Set OPENAI_API_KEY to a real OpenAI key before running generation. "
+            "The key should start with 'sk-'.",
+            style="red",
+        )
+        return
 
     rag, agent, guard = build_system(notes_dir=notes_dir)
 

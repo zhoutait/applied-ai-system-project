@@ -367,6 +367,12 @@ def parse_args():
 
 def main():
     args = parse_args()
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key.startswith("sk-"):
+        print("[ERROR] Set OPENAI_API_KEY to a real OpenAI key before running the full harness.")
+        print("        The key should start with 'sk-'.")
+        sys.exit(1)
+
     harness = TestHarness(notes_dir=args.notes_dir, verbose=args.verbose)
     results = harness.run_all()
     TestHarness.print_summary(results)
